@@ -250,8 +250,9 @@
     (remove-hook 'minibuffer-setup-hook (lambda () (set-input-method "english-dvorak"))))
   ))
 
+(setq my-scratch-timer (run-with-idle-timer 600 1 'save-persistent-scratch))
 
-
+(message "Scratch timer set up: " my-scratch-timer)
 
 ;dired+
 
