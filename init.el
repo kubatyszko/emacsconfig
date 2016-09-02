@@ -1,55 +1,5 @@
-(setq user-mail-address "kt@zestfinance.com")
-(setq display-time-day-and-date t)
-(setq query-replace-highlight t)
-(setq search-highlight t)
-(setq scroll-step 1)
-(setq scroll-conservatively 5)
-(setq tramp-default-method "sftp")
-(setq tramp-default-user "kt")
-(setq tramp-verbose 10)
-(setq tramp-debug-buffer t)
-(setq backup-directory-alist
-      `((".*" . ,temporary-file-directory)))
-(setq auto-save-file-name-transforms
-      `((".*" ,temporary-file-directory t)))
-(setq desktop-path '("~/.emacs.d/"))
-(setq desktop-dirname "~/.emacs.d/")
-(setq ask-if-new nil)
-(setq scroll-step 1)
-(setq scroll-conservatively 5)
-(setq blink-matching-paren t)
-(setq show-paren-mode t)
-(setq show-paren-style 'expression)
-(setq kill-whole-line t)
-(setq temporary-file-directory "/tmp/")
-(setq small-temporary-file-directory "/tmp/")
-(setq package-archive-enable-alist '(("melpa" deft magit)))
-(setq inhibit-splash-screen t
-      initial-scratch-message nil
-      initial-major-mode 'org-mode)
-(setq x-select-enable-clipboard t)
-(setq-default indicate-empty-lines t)
-(setq tab-width 2
-      indent-tabs-mode nil)
-(setq make-backup-files nil)
-(setq echo-keystrokes 0.1
-      use-dialog-box nil
-      visible-bell t)
-(setq deft-directory "~/Dropbox (Dropbox Zestfinance)/deft")
-(setq deft-use-filename-as-title t)
-(setq deft-extension "org")
-(setq deft-text-mode 'org-mode)
-(setq visible-bell nil)
-(setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory))
-(setq popup-kill-ring-interactive-insert t)
-
-
-(global-set-key [M-f1] 'shell-toggle)
-(global-set-key [C-f1] 'shell-toggle-cd)
-
-(global-set-key [f7] '(lambda () (interactive) (switch-to-buffer "*scratch*")))
-(global-set-key [f8] 'crosshairs)
-(global-set-key [f9] 'hl-line-mode)
+(server-start)
+(global-set-key [f10] '(lambda () (interactive) (switch-to-buffer "*scratch*")))
 
 (global-set-key (kbd "C-x C-b") 'ibuffer) 
 (global-set-key (kbd "RET") 'newline-and-indent)
@@ -229,14 +179,79 @@
       ))
 
 
-;;(setq my-timer (run-with-idle-timer 240 1 'refresh-hackernews))
+(hackernews)
 
-(require 'spaceline-config)
-(spaceline-spacemacs-theme)
+(setq my-timer (run-with-idle-timer 240 1 'refresh-hackernews))
+
+;(require 'spaceline-config)
+;(spaceline-spacemacs-theme)
+
+;(refresh-hackernews)
 
 (require 'dired+)
 
-my-timer
+
+(defvar persistent-scratch-filename
+  "~/.emacs.d/emacs-persistent-scratch"
+  "Location of *scratch contents*")
+
+(defvar persistent-scratch-backup-directory
+  "~/.emacs.d/emacs-persistent-scratch-backups/"
+  "location of backups of the *scratch* buffer")
+
+(defun make-persistent-scratch-backup-name ()
+  "create a filename to backup the current scratch file by concatenating persistent-scratch-backup-directori with the current date and time"
+  (concat
+   persistent-scratch-backup-directory
+   (replace-regexp-in-string
+    (regexp-quote " ") "-" (current-time-string))))
+
+(defun save-persistent-scratch ()
+  "write the contents of *scratch* to the file name persistent-scratch-filename, making a backup copy in persistent-scratch-backup-directory"
+  (with-current-buffer (get-buffer "*scratch*")
+    (if (file-exists-p persistent-scratch-filename)
+        (copy-file persistent-scratch-filename
+                   (concat persistent-scratch-backup-directory "persistent-scratch")
+                   "overwrite"))
+    (write-region (point-min) (point-max)
+                  persistent-scratch-filename)
+
+    (kuba-git-operation persistent-scratch-backup-directory)
+    ))
+
+(defun kuba-git-operation (dir)
+  "run git"
+  (let ((default-directory dir))
+    (shell-command (format "git commit -a -m 'auto saved scratch file'"))))
+
+(defun load-persistent-scratch ()
+  (if (file-exists-p persistent-scratch-filename)
+      (with-current-buffer (get-buffer "*scratch*")
+        (delete-region (point-min) (point-max))
+        (shell-command (format "cat %s" persistent-scratch-filename) (current-buffer)))))
+
+(load-persistent-scratch)
+
+(push #'save-persistent-scratch kill-emacs-hook)
+
+(defun dvorak-mode ()
+  (interactive)
+  (if (equal current-input-method nil)
+  (progn
+    (defadvice switch-to-buffer (after activate-input-method activate)
+      (activate-input-method "english-dvorak"))
+    (set-input-method "english-dvorak")
+    (add-hook 'minibuffer-setup-hook (lambda () (set-input-method "english-dvorak"))))
+  
+  (progn
+    (defadvice switch-to-buffer (after activate-input-method activate)
+      (activate-input-method nil))
+    (set-input-method nil)
+    (remove-hook 'minibuffer-setup-hook (lambda () (set-input-method "english-dvorak"))))
+  ))
+
+
+
 
 ;dired+
 
