@@ -1,4 +1,6 @@
 (server-start)
+(package-initialize)
+
 (global-set-key [f10] '(lambda () (interactive) (switch-to-buffer "*scratch*")))
 
 (global-set-key (kbd "C-x C-b") 'ibuffer) 
@@ -48,7 +50,7 @@
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 
 
-(package-initialize)
+
 
 (require 'shell-switcher)
 
@@ -97,7 +99,6 @@
                           smex
                           shell-switcher
                           sml-mode
-                          solarized-theme
                           web-mode
                           writegood-mode
                           yaml-mode)
@@ -135,28 +136,17 @@
             (autopair-mode)))
 
 
+(add-hook 'haskell-mode-hook 'intero-mode)
+
 (rvm-use-default)
 
+(setenv "PATH"
+  (concat
+   (getenv "PATH")
+   ":" "/usr/local/bin"
+  )
+)
 
-
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   (quote
-    ("06b2849748590f7f991bf0aaaea96611bb3a6982cad8b1e3fc707055b96d64ca" default))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-
-
-(load-theme 'zenburn t)
 
 ;Magit
 
@@ -172,6 +162,7 @@
 
 
 (defun refresh-hackernews ()
+    (message "refreshing hackernews")
     (with-selected-window (get-buffer-window (get-buffer "*hackernews*"))
       (hackernews)
       (shrink-window-if-larger-than-buffer)
@@ -181,7 +172,10 @@
 
 (hackernews)
 
+
 (setq my-timer (run-with-idle-timer 240 1 'refresh-hackernews))
+(setq tramp-default-method "ssh")
+
 
 ;(require 'spaceline-config)
 ;(spaceline-spacemacs-theme)
@@ -250,9 +244,65 @@
     (remove-hook 'minibuffer-setup-hook (lambda () (set-input-method "english-dvorak"))))
   ))
 
+ ;; (defun colemak-mode ()
+ ;;  (interactive)
+ ;;  (if (equal current-input-method nil)
+ ;;  (progn
+ ;;    (defadvice switch-to-buffer (after activate-input-method activate)
+ ;;      (activate-input-method "english-colemak"))
+ ;;    (set-input-method "english-colemak")
+ ;;    (add-hook 'minibuffer-setup-hook (lambda () (set-input-method "english-colemak"))))
+  
+ ;;  (progn
+ ;;    (defadvice switch-to-buffer (after activate-input-method activate)
+ ;;      (activate-input-method nil))
+ ;;    (set-input-method nil)
+ ;;    (remove-hook 'minibuffer-setup-hook (lambda () (set-input-method "english-colemak"))))
+ ;;  ))
+
+
+(defun set-exec-path-from-shell-PATH ()
+  "Set up Emacs' `exec-path' and PATH environment variable to match that used by the user's shell.
+
+This is particularly useful under Mac OSX, where GUI apps are not started from a shell."
+  (interactive)
+  (let ((path-from-shell (replace-regexp-in-string "[ \t\n]*$" "" (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
+    (setenv "PATH" path-from-shell)
+    (setq exec-path (split-string path-from-shell path-separator))))
+
+
+(set-exec-path-from-shell-PATH)
+
 (setq my-scratch-timer (run-with-idle-timer 600 1 'save-persistent-scratch))
 
 (message "Scratch timer set up: " my-scratch-timer)
+
+(require 'engine-mode)
+
+(define-key haskell-mode-map "\C-ch" 'haskell-hoogle)
+
+(defengine google
+  "https://www.google.com/#q=%s")
+
+(defengine github
+  "https://github.com/search?ref=simplesearch&q=%s")
+
+(defengine hoogle
+  "https://www.haskell.org/hoogle/?hoogle=%s")
+
+(setq haskell-hoogle-command "/Users/kt/.local/bin/hoogle")
+
+(do-applescript "tell application \"Google Chrome\"
+	activate
+	set active tab index of first window to 1
+	
+	tell application \"System Events\" to keystroke \"/\"
+end tell")
+
+(do-applescript "tell application \"Google Chrome\" to open location \"https://mail.google.com/mail/u/0/#search/kuba\"")
+
+
+
 
 ;dired+
 
@@ -274,4 +324,7 @@
 
 ;ruby-block
 
+                                        ;hoogle
+
+(add-hook 'after-init-hook (lambda () (load-theme 'zenburn t)))
 
