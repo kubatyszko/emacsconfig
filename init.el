@@ -279,16 +279,44 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 
 (require 'engine-mode)
 
+(engine/set-keymap-prefix (kbd "C-c s"))
+
+(engine-mode)
+
 (define-key haskell-mode-map "\C-ch" 'haskell-hoogle)
 
 (defengine google
-  "https://www.google.com/#q=%s")
+  "https://www.google.com/#q=%s"
+  :keybinding "g")
 
 (defengine github
   "https://github.com/search?ref=simplesearch&q=%s")
 
 (defengine hoogle
   "https://www.haskell.org/hoogle/?hoogle=%s")
+
+(defengine stack-overflow
+  "https://stackoverflow.com/search?q=%s")
+
+(defengine twitter
+  "https://twitter.com/search?q=%s"
+  :keybinding "t")
+
+(defengine wikipedia
+  "http://www.wikipedia.org/search-redirect.php?language=en&go=Go&search=%s"
+  :keybinding "w"
+  :docstring "Searchin' the wikis.")
+
+(defengine wiktionary
+  "https://www.wikipedia.org/search-redirect.php?family=wiktionary&language=en&go=Go&search=%s")
+
+(defengine wolfram-alpha
+  "http://www.wolframalpha.com/input/?i=%s")
+
+(defengine youtube
+  "http://www.youtube.com/results?aq=f&oq=&search_query=%s"
+  :keybinding "y"
+  )
 
 (setq haskell-hoogle-command "/Users/kt/.local/bin/hoogle")
 
@@ -299,7 +327,11 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 	tell application \"System Events\" to keystroke \"/\"
 end tell")
 
-(do-applescript "tell application \"Google Chrome\" to open location \"https://mail.google.com/mail/u/0/#search/kuba\"")
+(defun gmail-search (s)
+  (interactive "sEnter query: ")
+  
+  (do-applescript (format "tell application \"Google Chrome\" to open location \"https://mail.google.com/mail/u/0/#search/%s\"" s)))
+(global-set-key (kbd "C-x m") 'gmail-search)
 
 
 
