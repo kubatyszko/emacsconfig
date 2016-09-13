@@ -7,7 +7,7 @@
 (global-set-key (kbd "RET") 'newline-and-indent)
 (global-set-key (kbd "C-c C-k") 'compile)
 (global-set-key (kbd "C-x g") 'magit-status)
-(global-set-key (kbd "M-x") 'smex)
+(global-set-key (kbd "M-X") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
 
 (global-set-key "\M-y" 'popup-kill-ring)
@@ -194,7 +194,7 @@
   "location of backups of the *scratch* buffer")
 
 (defun make-persistent-scratch-backup-name ()
-  "create a filename to backup the current scratch file by concatenating persistent-scratch-backup-directori with the current date and time"
+  "create a filename to backup the current scratch file by concatenating persistent-scratch-backup-directory with the current date and time"
   (concat
    persistent-scratch-backup-directory
    (replace-regexp-in-string
@@ -320,12 +320,12 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 
 (setq haskell-hoogle-command "/Users/kt/.local/bin/hoogle")
 
-(do-applescript "tell application \"Google Chrome\"
-	activate
-	set active tab index of first window to 1
-	
-	tell application \"System Events\" to keystroke \"/\"
-end tell")
+;(do-applescript "tell application \"Google Chrome\"
+;	activate
+;	set active tab index of first window to 1
+;	
+;	tell application \"System Events\" to keystroke \"/\"
+;end tell")
 
 (defun gmail-search (s)
   (interactive "sEnter query: ")
@@ -359,4 +359,5 @@ end tell")
                                         ;hoogle
 
 (add-hook 'after-init-hook (lambda () (load-theme 'zenburn t)))
+(load-theme 'zenburn t)
 
