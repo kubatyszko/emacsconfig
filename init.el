@@ -283,7 +283,7 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 
 (engine-mode)
 
-(define-key haskell-mode-map "\C-ch" 'haskell-hoogle)
+;(define-key haskell-mode-map "\C-ch" 'haskell-hoogle)
 
 (defengine google
   "https://www.google.com/#q=%s"
