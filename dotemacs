@@ -1,0 +1,401 @@
+(setq server-host "127.0.0.1") 
+(setq server-use-tcp t)
+(server-start)
+(desktop-save-mode t)
+(setq desktop-path '("~/.emacs.d/"))
+(setq desktop-dirname "~/.emacs.d/")
+(setq ask-if-new nil)
+
+(setq make-backup-files nil)
+
+;; Set buffer behaviour
+(setq next-line-add-newlines nil)
+(setq scroll-step 1)
+(setq scroll-conservatively 5)
+(setq blink-matching-paren t)
+(setq transient-mark-mode -1)
+(setq show-paren-mode t)
+(show-paren-mode t)
+(setq show-paren-style 'expression)
+(setq query-replace-highlight t) 
+(setq search-highlight t)
+(setq default-major-mode 'text-mode)
+(follow-mode t)
+(setq scroll-step 1)
+(setq scroll-conservatively 5)
+(setq kill-whole-line t)
+;;(tool-bar-mode 0)
+(setq inhibit-startup-message t)
+(put 'narrow-to-region 'disabled nil)
+
+;(setq compile-command "gcc -g")
+;(setq compile-command "g++ -g")
+
+(setq verilog-linter "iverilog")
+
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+
+(add-hook 'c-mode-hook
+	  (lambda()
+	    (set (make-local-variable 'compile-command) (concat "gcc " (buffer-name)))))
+
+(global-set-key [f7] 'compile) 
+(global-set-key [f8] 'ns-toggle-fullscreen) 
+;(global-set-key (kbd "M-<down>") 'my-move-one-line-and-recenter-down)
+;(global-set-key (kbd "M-<up>") 'my-move-one-line-and-recenter-up)
+
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+(setq temporary-file-directory "/tmp/")
+(setq small-temporary-file-directory "/tmp/")
+
+;; Completions in minibuffer 
+;;;;;;;;;;;;;(define-key minibuffer-local-map [tab] 'comint-dynamic-complete)
+
+;(add-to-list 'load-path "/Users/kuba/emacs/slime-2011-02-21")
+(add-to-list 'load-path "/Users/kuba/emacs")
+(add-to-list 'load-path "/Users/kuba/emacs/site-emacs")
+(add-to-list 'load-path "/Users/kuba/emacs/site-emacs/rcodetools-0.8.5.0/")
+;(add-to-list 'load-path "/Library/Ruby/Gems/2.0.0/gems/rcodetools-0.8.5.0/")
+
+
+;; TRAMP;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require 'tramp)
+;(require 'trace)
+;;(setq tramp-remote-sh "exec env 'PS1=$ ' /bin/sh")
+(setq tramp-default-method "sftp")
+(add-to-list 'tramp-default-method-alist '("192.168.4.44" "" "telnet"))
+(add-to-list 'tramp-default-method-alist '("192.168.4.100" "" "ftp"))
+(setq tramp-default-user "kuba")
+(setq tramp-verbose 10)
+(setq tramp-debug-buffer t)
+
+;(add-to-list 'tramp-default-proxies-alist
+;	     '("\\vbsd\\'" "\\`root\\'" "/ssh:%h:"))
+;; END TRAMP;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;LaTeX;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setenv "PATH" (concat "/Applications/ghc-7.10.3.app/Contents/bin/:/usr/texbin:/usr/local/bin:" (getenv "PATH")))
+(setq exec-path (append '("/usr/texbin" "/usr/local/bin") exec-path))
+(load "auctex.el" nil t t)
+(load "preview-latex.el" nil t t)
+;(require 'preview-latex)
+;;END LaTeX;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(require 'rcodetools)
+
+;;Guile;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(load "guile-interaction-mode.el" nil t t)
+(require 'guile-interface)
+;;END GUILE;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;Clojure;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(add-to-list 'load-path "/Users/kuba/emacs/site-emacs/clojure-mode")
+(require 'clojure-mode)
+;(add-to-list 'load-path "/Users/kuba/emacs/site-emacs/swank-clojure")
+(setq swank-clojure-jar-path "/opt/local/share/java/clojure/bin/../lib/clojure.jar"
+      swank-clojure-extra-classpaths (list
+				      "/Users/kuba/emacs/site-emacs/swank-clojure/src/main/clojure"
+				      "/opt/local/share/java/clojure/bin/../lib/clojure.jar"))
+;(require 'swank-clojure)
+;;END Clojure;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(autoload 'python-mode "python-mode" "Python Mode." t)
+(autoload 'ruby-mode "ruby-mode" "Ruby Mode." t)
+;;;(autoload 'typing-of-emacs "The Typing Of Emacs, a game." t)
+(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
+(add-to-list 'auto-mode-alist '("\\.rb\\'" . ruby-mode))
+(add-to-list 'interpreter-mode-alist '("python" . python-mode))
+
+
+(require 'ruby-mode)
+(define-key ruby-mode-map (kbd "C-c C-c") 'xmp)
+
+;;;(require 'typing)
+
+(require 'mercurial)
+
+(require 'package)
+(add-to-list 'package-archives
+  '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(package-initialize)
+
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+
+
+
+;;;(require 'color-theme)
+;;(eval-after-load "color-theme"
+;;  '(progn
+;;     (color-theme-initialize)
+;;     (color-theme-hober)))
+(load-library "google-c-style.el")
+;;(google-set-c-style)
+
+(load-library "zenburn.el")
+;;(require "zenburn.el")
+(zenburn)
+
+;;(load-library "color-theme-solarized.el")
+;;(color-theme-solarized-dark)
+;(color-theme-arjen)
+(load-library "dired+.el")
+
+;;; billw is good
+;(color-theme-hober) ;; used this one
+
+;(color-theme-arjen)
+;(color-theme-clarity)
+;(color-theme-dark-laptop)
+;(color-theme-hober)
+;(color-theme-jsc-dark)
+;(color-theme-ld-dark)
+;(color-theme-lethe)
+;(color-theme-midnight)
+
+
+;;;;BLUE below
+;(color-theme-blue-sea)         ;nice blue, not many colors
+;(color-theme-blue-mood)        ;nice blue, more colors
+;(color-theme-dark-blue2)       ;pastel blue
+;(color-theme-deep-blue)        ;blue, more colors
+;(color-theme-parus)            ;nice blue
+;(color-theme-subtle-blue)      ;toned, blue with pastel fonts
+;(color-theme-dark-blue)        ;pastel grayish/blue
+;(color-theme-jonadabian)       ;dark blue with some colors, yellow/green/red
+;(color-theme-raspopovic)       ;nice blue, some colors
+
+
+;;;;BLACK below
+;(color-theme-tty-dark)         ;black with good readable fonts
+;(color-theme-euphoria)         ;purple/green
+;(color-theme-simple-1)         ;black, white font and some toned colors
+
+
+;;;;RETRO below
+;(color-theme-digital-ofs1)     ;motif-y old school, black/red
+;(color-theme-sitaramv-solaris) ;motif-y, blue bg and some colors
+;(color-theme-retro-green)      ;all green
+;(color-theme-retro-orange)     ;all orange
+
+;;;;similar to retro
+;(color-theme-lawrence)         ;dark, shades of green
+;(color-theme-matrix)           ;dark, shades of green + some more colors
+;(color-theme-oswald)           ;dark, mostly green+red
+
+
+;;;;LIGHT
+;(color-theme-aalto-light)      ;yellowish
+;(color-theme-wheat)            ;wheat
+;(color-theme-black-on-gray)    ;bright, readable
+;(color-theme-feng-shui)         ;;; awesome font, very thin.
+;(color-theme-greiner)          ;mostly black, some red/pink
+;(color-theme-high-contrast)    ;bold, black with some colors
+;(color-theme-jb-simple)        ;bold with some colors
+;(color-theme-jedit-grey)       ;dark fonts, gray background
+
+
+;;;;GRAY
+;(color-theme-robin-hood)       ;greenish background with some colors
+;(color-theme-subtle-hacker)    ;toned greenish with pastel
+;(color-theme-jonadabian-slate) ;green with ^^
+;(color-theme-gray30)           ;gray/pastel
+;(color-theme-charcoal-black)   ;blue, gray, charcoal, pastel..
+;(color-theme-calm-forest)      ;mostly green, some orange, dark
+
+
+(defun kuba-filter (output)
+
+(let ((overlay (make-overlay 5 10)))
+    (overlay-put overlay 'face '((((class color)) (:background "magenta"))
+    (t (:bold t))))
+    overlay)
+  output
+)
+
+(defun my-move-one-line-and-recenter-down ()
+  "Move down by 1 line scrolling"
+  (interactive)
+  (progn
+    (setq prefix-arg '-)
+    (next-line)
+    (recenter-top-bottom))
+  )
+
+(defun my-move-one-line-and-recenter-up ()
+  "Move up by 1 line scrolling"
+  (interactive)
+  (progn
+    (setq prefix-arg '-)
+    (previous-line)
+    (recenter-top-bottom))
+  )
+
+
+(defun my-compile ()
+  "Use compile to run python programs"
+  (interactive)
+  (compile (concat "python " (buffer-name))))
+(setq compilation-scroll-output t)
+
+
+(defun run-kuba ()
+       "Run an interface "
+       (interactive)
+       (require 'comint)
+       (switch-to-buffer-other-window (make-comint "ruby" "/usr/bin/python" "/Users/kuba/query.py"))
+       (erase-buffer)
+       (other-window -1)
+
+       (add-hook 'comint-preoutput-filter-functions 'kuba-filter)
+       )
+
+(defun my-output-filter  (output)
+  (setq my-buffer (concat my-buffer output))
+  (while (string-match "" my-buffer)
+    (let* ((end (match-end 0))
+           (xml (substring my-buffer 0 end))
+           (fields (my-extract-fields xml))
+           (ticker (my-get-value fields "ticker")))
+      (when (and output (get-buffer "*display*"))
+        (with-current-buffer "*display*"
+          (goto-char (point-min))
+          (if (re-search-forward (format "Ticker: +%s" ticker) nil t)
+              (progn
+                (move-beginning-of-line 1)
+                (kill-line 1)
+                (insert (format "%s\n" (my-data-format fields))))
+            (goto-char (point-max))
+            (insert (format "%s\n" (my-data-format fields))))))
+      (setq my-buffer (substring my-buffer end))))
+  output)
+
+(defun kuba-map-compiler-to-mode ()
+  "detect major-mode, and run appropriate compile"
+  (interactive)
+  (let 
+      (
+       (lista '((python-mode . "python") (emacs-lisp-mode . elisp)))
+       retval
+       )
+    
+;;       (if 
+;; 	  (equal 'python-mode major-mode) 
+;; 	  (message "eyesssss")
+;; 	(message "noooo")
+;; 	)
+      (setq retval (cdr(assoc major-mode lista)))
+;      (message "Compiler: %s" retval)
+      retval
+    )
+  )
+
+(defun kuba-auto-compile ()
+  "Check the compiler, and set compiler var"
+  (interactive)
+  (message "checking compiler")
+
+  (setq kuba (concat (kuba-map-compiler-to-mode) " " (buffer-file-name)))
+  (message "com: %s" kuba)
+  (setq compile-command kuba)
+)
+(custom-set-variables
+ '(load-home-init-file t t))
+(custom-set-faces)
+
+;(setq slime-lisp-implementations
+;      `(
+;	(sbcl ("/opt/local/bin/sbcl"))
+;	(clisp ("/opt/local/bin/clisp"))
+;	))
+
+;(add-hook 'lisp-mode-hook
+;	  (lambda ()
+;	    (cond ((not (featurep 'slime))
+;		   (require 'slime) 
+;		   (normal-mode)))))
+
+;(setq inferior-lisp-program "/opt/local/bin/sbcl")
+;(require 'slime-autoloads)
+
+;(slime-setup '(slime-fancy slime-banner))
+
+;(eval-after-load "slime"
+;  '(progn
+;    (slime-setup '(slime-fancy slime-asdf slime-banner))
+;    (setq slime-complete-symbol*-fancy t)
+;    (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)))
+
+
+
+(global-set-key (kbd "M-RET") 'ns-toggle-fullscreen)
+
+(setq common-lisp-hyperspec-root "http://www.lispworks.com/documentation/HyperSpec/")
+
+;;;;;;;;;;;;;;;;;;;;
+;; set up unicode
+(prefer-coding-system       'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+;; This from a japanese individual.  I hope it works.
+(setq default-buffer-file-coding-system 'utf-8)
+;; From Emacs wiki
+(setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
+
+
+(add-hook 'gud-mode-hook
+	  '(lambda ()
+             (local-set-key [home]        ; move to beginning of line, after prompt
+                            'comint-bol)
+	     (local-set-key [up]          ; cycle backward through command history
+                            '(lambda () (interactive)
+                               (if (comint-after-pmark-p)
+                                   (comint-previous-input 1)
+                                 (previous-line 1))))
+	     (local-set-key [down]        ; cycle forward through command history
+                            '(lambda () (interactive)
+                               (if (comint-after-pmark-p)
+                                   (comint-next-input 1)
+                                 (forward-line 1))))
+             ))
+
+
+(custom-set-faces
+;  '(default ((t (:height 110 :family "Menlo"))))
+  '(default ((t (:height 130 :family "Menlo"))))
+  )
+
+
+;(Inconsolata-default-font "-apple-Inconsolata-dz-medium-normal-normal-*-10-*-*-*-m-0-iso10646-1")
+
+;(set-face-attribute 'default nil
+ ;                   :family "Inconsolata-dz" :height 100 :weight 'normal)
+
+
+(setq mac-allow-anti-aliasing nil)
+;(set-frame-font "-apple-Dina-medium-normal-normal--16--*-*-m-0-iso10646-1")
+
+
+;(require 'gds)
+;;(require 'quack)
+
+;; Install Intero
+;(package-install 'intero)
+(add-hook 'haskell-mode-hook 'intero-mode)
+
+(require 'shell-switcher)
+
+  (autoload 'shell-toggle "shell-toggle"
+   "Toggles between the shell buffer and whatever buffer you are editing."
+   t)
+  (autoload 'shell-toggle-cd "shell-toggle"
+   "Pops up a shell-buffer and insert a \"cd <file-dir>\" command." t)
+  (global-set-key [M-f1] 'shell-toggle)
+  (global-set-key [C-f1] 'shell-toggle-cd)
+
+;;(ensime)
+
+
