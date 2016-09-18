@@ -361,3 +361,7 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 (add-hook 'after-init-hook (lambda () (load-theme 'zenburn t)))
 (load-theme 'zenburn t)
 
+					; λ
+					; 03bb
+					; C-x 8 RET 03bb
+;(insert-char "GREEK SMALL LETTER LAMDA") ;CHARACTER &optional COUNT INHERIT)
