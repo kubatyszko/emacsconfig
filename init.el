@@ -1,7 +1,9 @@
-(server-start)
+;(server-start)
 (package-initialize)
 
 (global-set-key [f10] '(lambda () (interactive) (switch-to-buffer "*scratch*")))
+(global-set-key [f9] 'hl-line-mode)
+(global-set-key [f8] 'crosshairs-mode)
 
 (global-set-key (kbd "C-x C-b") 'ibuffer) 
 (global-set-key (kbd "RET") 'newline-and-indent)
@@ -9,6 +11,15 @@
 (global-set-key (kbd "C-x g") 'magit-status)
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
+
+(global-set-key (kbd "C-x p") 'previous-multiframe-window)
+
+
+(global-set-key (kbd "C-c w n") 'wconf-use-next)
+(global-set-key (kbd "C-c w p") 'wconf-use-previous)
+(global-set-key (kbd "C-c w s") 'wconf-store-all)
+(global-set-key (kbd "C-c w l") 'wconf-restore-all)
+(global-set-key (kbd "C-c w w") 'wconf-save)
 
 (global-set-key "\M-y" 'popup-kill-ring)
                                         ;(global-set-key (kbd "C-x g") 'google-this-mode-submap)
@@ -27,9 +38,30 @@
 (require 'package)
 (require 'tramp)
 
+(setq tramp-default-method "scp")
 
-(add-to-list 'tramp-default-method-alist '("192.168.4.44" "" "telnet"))
+(add-to-list 'tramp-connection-properties
+             (list (regexp-quote "/ssh:mac:")
+                   "remote-shell" "/bin/bash"))
+
+(add-to-list 'tramp-default-method-alist '("mac" "" "scp"))
+
+(add-to-list 'tramp-default-method-alist '("192.168.59.3" "" "scp"))
 (add-to-list 'tramp-default-method-alist '("192.168.4.100" "" "ftp"))
+(add-to-list 'tramp-connection-properties
+             (list (regexp-quote "/ssh:mac:")
+                   "remote-shell-login" "/bin/bash"))
+
+(setq desktop-buffers-not-to-save "^$")
+
+(defun goto-match-paren (arg)
+  "Go to the matching parenthesis if on parenthesis, otherwise insert %.
+vi style of % jumping to matching brace."
+  (interactive "p")
+  (cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
+        ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
+        (t (self-insert-command (or arg 1)))))
+
 (add-to-list 'auto-mode-alist '("\\.rb\\'" . ruby-mode))
 (add-to-list
  'package-archives
@@ -94,7 +126,7 @@
                           php-mode
                           puppet-mode
                           restclient
-                          rvm
+b                          rvm
                           scala-mode
                           smex
                           shell-switcher
@@ -171,11 +203,30 @@
 
 
 (hackernews)
+;(set-face-attribute 'default nil :family "Literation Mono Powerline")
+;(set-face-attribute 'default nil :family "Droid Sans Mono Slashed Powerline")
 
+(set-face-attribute 'default nil :font "Inconsolata for Powerline")
+;(set-face-attribute 'default nil :family "Meslo LG S for Powerline")
+;(set-frame-font "Meslo LG S for Powerline")
+;(set-frame-font "Inconsolata-dz for Powerline")
+;(set-face-attribute 'default nil :font "Roboto Mono Light for Powerline")
+;(set-face-attribute 'default nil :family "Andale Mono")
+;(set-face-attribute 'default nil :family "Monaco")
+
+
+(set-face-attribute 'default nil :height 120)
 
 (setq my-timer (run-with-idle-timer 240 1 'refresh-hackernews))
 (setq tramp-default-method "ssh")
+(setq temporary-file-directory "/tmp/")
+(setq small-temporary-file-directory "/tmp/")
+(setq make-backup-files nil)
+(setq auto-save-default nil)
+(setq kill-whole-line t)
+(setq show-paren-style 'expression)
 
+(show-paren-mode t)
 
 ;(require 'spaceline-config)
 ;(spaceline-spacemacs-theme)
@@ -201,6 +252,7 @@
     (regexp-quote " ") "-" (current-time-string))))
 
 (defun save-persistent-scratch ()
+  (interactive)
   "write the contents of *scratch* to the file name persistent-scratch-filename, making a backup copy in persistent-scratch-backup-directory"
   (with-current-buffer (get-buffer "*scratch*")
     (if (file-exists-p persistent-scratch-filename)
@@ -223,6 +275,16 @@
       (with-current-buffer (get-buffer "*scratch*")
         (delete-region (point-min) (point-max))
         (shell-command (format "cat %s" persistent-scratch-filename) (current-buffer)))))
+
+(defun scratch-remap-save-key ()
+  (with-current-buffer (get-buffer "*scratch*")
+    (setq scratchmap (make-sparse-keymap))
+    (use-local-map scratchmap)
+    (local-set-key (kbd "C-x C-s") 'save-persistent-scratch)))
+
+
+(scratch-remap-save-key)
+
 
 (load-persistent-scratch)
 
@@ -283,7 +345,7 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 
 (engine-mode)
 
-(define-key haskell-mode-map "\C-ch" 'haskell-hoogle)
+;(define-key haskell-mode-map "\C-ch" 'haskell-hoogle)
 
 (defengine google
   "https://www.google.com/#q=%s"
@@ -320,21 +382,29 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 
 (setq haskell-hoogle-command "/Users/kt/.local/bin/hoogle")
 
-(do-applescript "tell application \"Google Chrome\"
-	activate
-	set active tab index of first window to 1
-	
-	tell application \"System Events\" to keystroke \"/\"
-end tell")
+;(do-applescript "tell application \"Google Chrome\"
+;	activate
+;	set active tab index of first window to 1
+;	
+;	tell application \"System Events\" to keystroke \"/\"
+;end tell")
+;
+;(defun gmail-search (s)
+;  (interactive "sEnter query: ")
+;  
+;  (do-applescript (format "tell application \"Google Chrome\" to open location \"https://mail.google.com/mail/u/0/#search/%s\"" s)))
+;(global-set-key (kbd "C-x m") 'gmail-search) 
+;
 
-(defun gmail-search (s)
-  (interactive "sEnter query: ")
-  
-  (do-applescript (format "tell application \"Google Chrome\" to open location \"https://mail.google.com/mail/u/0/#search/%s\"" s)))
-(global-set-key (kbd "C-x m") 'gmail-search)
+(require 'wconf)
 
+(require 'mouse)
 
+(xterm-mouse-mode t)
 
+(defun track-mouse (e))
+
+(setq mouse-sel-mode t)
 
 ;dired+
 
@@ -359,4 +429,67 @@ end tell")
                                         ;hoogle
 
 (add-hook 'after-init-hook (lambda () (load-theme 'zenburn t)))
+
+(load-theme 'zenburn t)
+
+ ;;;;;;;;;;;;;;;
+    ;; VARIABLES ;;
+    ;;;;;;;;;;;;;;;
+    (defvar workspaces-list nil)
+    (defvar workspaces-are-initialized nil)
+    
+    ;;;;;;;;;;;;;;;;;;;;;
+    ;; GLOBAL BINDINGS ;;
+    ;;;;;;;;;;;;;;;;;;;;;
+
+(global-set-key (kbd "C-x w") 'workspace-goto)
+    
+    ;;;;;;;;;;;;;;;
+    ;; FUNCTIONS ;;
+    ;;;;;;;;;;;;;;;
+    (defun workspace-create-new (deskid)
+      "Create a blank workspace at id deskid, between 1 and 9"
+      (interactive "What ID do you want to give to blank workspace ?")
+      (workspace-goto ?0)
+      (window-configuration-to-register deskid)
+      (add-to-list 'workspaces-list deskid)
+      (workspace-goto deskid))
+    
+    
+    (defun workspace-goto (deskid)
+      "Go to another workspace, deskid is workspace number between 1 and 9;
+    Workspace 0 is a template workspace, do not use it unless you know what you do;
+    You can kill a workspace with 'k' and fallback on 1."
+      (interactive "cTo which workspace do you want to go ? ")
+      (let (add)
+        (setq add (if (eq deskid ?0) "\n!-!-! This is template workspace. New workspaces are based on it. " nil))
+        (cond
+         ((and (>= deskid ?0) (<= deskid ?9))
+          (if (or (member deskid workspaces-list) (eq deskid ?0))
+    	  (progn
+    	    (window-configuration-to-register current-workspace)
+    	    (setq current-workspace deskid)
+    	    (jump-to-register deskid))
+    	(if (y-or-n-p "This workspace does not exist, should it be created ? ")
+    	    (progn
+    	      (window-configuration-to-register current-workspace)
+    	      (workspace-create-new deskid))
+    	  nil)))
+         ((and (eq deskid ?k) (not (or (eq current-workspace ?0) (eq current-workspace ?1))))
+          (let ((deskid-to-del current-workspace))
+    	(workspace-goto ?1)
+    	(setq workspaces-list (remove deskid-to-del workspaces-list))))
+         (t (setq add "\n!-!-! Please specify a valid workspace number in (1-9), 0 do edit template, 'k' to kill current workspace in (2-9)")))
+        (message (concat "Now on workspace " (char-to-string current-workspace) "\nWorkspaces list is : " (mapconcat 'char-to-string (sort (copy-sequence workspaces-list) '<) ", ") add))))
+    
+    ;;;;;;;;;;;
+    ;; HOOKS ;;
+    ;;;;;;;;;;;
+;; un bureau est cree au premier chargement seulement
+
+ (unless workspaces-are-initialized
+      (window-configuration-to-register ?0)
+      (setq current-workspace ?0)
+      (workspace-create-new ?1)
+      (setq workspaces-are-initialized t))
 
