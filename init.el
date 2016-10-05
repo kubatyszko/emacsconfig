@@ -2,13 +2,24 @@
 (package-initialize)
 
 (global-set-key [f10] '(lambda () (interactive) (switch-to-buffer "*scratch*")))
+(global-set-key [f9] 'hl-line-mode)
+(global-set-key [f8] 'crosshairs-mode)
 
 (global-set-key (kbd "C-x C-b") 'ibuffer) 
 (global-set-key (kbd "RET") 'newline-and-indent)
 (global-set-key (kbd "C-c C-k") 'compile)
 (global-set-key (kbd "C-x g") 'magit-status)
-(global-set-key (kbd "M-X") 'smex)
+(global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
+
+(global-set-key (kbd "C-x p") 'previous-multiframe-window)
+
+
+(global-set-key (kbd "C-c w n") 'wconf-use-next)
+(global-set-key (kbd "C-c w p") 'wconf-use-previous)
+(global-set-key (kbd "C-c w s") 'wconf-store-all)
+(global-set-key (kbd "C-c w l") 'wconf-restore-all)
+(global-set-key (kbd "C-c w w") 'wconf-save)
 
 (global-set-key "\M-y" 'popup-kill-ring)
                                         ;(global-set-key (kbd "C-x g") 'google-this-mode-submap)
@@ -30,6 +41,20 @@
 
 (add-to-list 'tramp-default-method-alist '("192.168.4.44" "" "telnet"))
 (add-to-list 'tramp-default-method-alist '("192.168.4.100" "" "ftp"))
+(add-to-list 'tramp-connection-properties
+             (list (regexp-quote "/ssh:mac:")
+                   "remote-shell-login" "/bin/bash"))
+
+(setq desktop-buffers-not-to-save "^$")
+
+(defun goto-match-paren (arg)
+  "Go to the matching parenthesis if on parenthesis, otherwise insert %.
+vi style of % jumping to matching brace."
+  (interactive "p")
+  (cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
+        ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
+        (t (self-insert-command (or arg 1)))))
+
 (add-to-list 'auto-mode-alist '("\\.rb\\'" . ruby-mode))
 (add-to-list
  'package-archives
@@ -171,11 +196,30 @@
 
 
 (hackernews)
+;(set-face-attribute 'default nil :family "Literation Mono Powerline")
+;(set-face-attribute 'default nil :family "Droid Sans Mono Slashed Powerline")
 
+(set-face-attribute 'default nil :font "Inconsolata for Powerline")
+;(set-face-attribute 'default nil :family "Meslo LG S for Powerline")
+;(set-frame-font "Meslo LG S for Powerline")
+;(set-frame-font "Inconsolata-dz for Powerline")
+;(set-face-attribute 'default nil :font "Roboto Mono Light for Powerline")
+;(set-face-attribute 'default nil :family "Andale Mono")
+;(set-face-attribute 'default nil :family "Monaco")
+
+
+(set-face-attribute 'default nil :height 120)
 
 (setq my-timer (run-with-idle-timer 240 1 'refresh-hackernews))
 (setq tramp-default-method "ssh")
+(setq temporary-file-directory "/tmp/")
+(setq small-temporary-file-directory "/tmp/")
+(setq make-backup-files nil)
+(setq auto-save-default nil)
+(setq kill-whole-line t)
+(setq show-paren-style 'expression)
 
+(show-paren-mode t)
 
 ;(require 'spaceline-config)
 ;(spaceline-spacemacs-theme)
@@ -194,13 +238,14 @@
   "location of backups of the *scratch* buffer")
 
 (defun make-persistent-scratch-backup-name ()
-  "create a filename to backup the current scratch file by concatenating persistent-scratch-backup-directory with the current date and time"
+  "create a filename to backup the current scratch file by concatenating persistent-scratch-backup-directori with the current date and time"
   (concat
    persistent-scratch-backup-directory
    (replace-regexp-in-string
     (regexp-quote " ") "-" (current-time-string))))
 
 (defun save-persistent-scratch ()
+  (interactive)
   "write the contents of *scratch* to the file name persistent-scratch-filename, making a backup copy in persistent-scratch-backup-directory"
   (with-current-buffer (get-buffer "*scratch*")
     (if (file-exists-p persistent-scratch-filename)
@@ -223,6 +268,16 @@
       (with-current-buffer (get-buffer "*scratch*")
         (delete-region (point-min) (point-max))
         (shell-command (format "cat %s" persistent-scratch-filename) (current-buffer)))))
+
+(defun scratch-remap-save-key ()
+  (with-current-buffer (get-buffer "*scratch*")
+    (setq scratchmap (make-sparse-keymap))
+    (use-local-map scratchmap)
+    (local-set-key (kbd "C-x C-s") 'save-persistent-scratch)))
+
+
+(scratch-remap-save-key)
+
 
 (load-persistent-scratch)
 
@@ -326,15 +381,23 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 ;	
 ;	tell application \"System Events\" to keystroke \"/\"
 ;end tell")
+;
+;(defun gmail-search (s)
+;  (interactive "sEnter query: ")
+;  
+;  (do-applescript (format "tell application \"Google Chrome\" to open location \"https://mail.google.com/mail/u/0/#search/%s\"" s)))
+;(global-set-key (kbd "C-x m") 'gmail-search) 
+;
 
-(defun gmail-search (s)
-  (interactive "sEnter query: ")
-  
-  (do-applescript (format "tell application \"Google Chrome\" to open location \"https://mail.google.com/mail/u/0/#search/%s\"" s)))
-(global-set-key (kbd "C-x m") 'gmail-search)
+(require 'wconf)
 
+(require 'mouse)
 
+(xterm-mouse-mode t)
 
+(defun track-mouse (e))
+
+(setq mouse-sel-mode t)
 
 ;dired+
 
@@ -359,9 +422,6 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
                                         ;hoogle
 
 (add-hook 'after-init-hook (lambda () (load-theme 'zenburn t)))
+
 (load-theme 'zenburn t)
 
-					; λ
-					; 03bb
-					; C-x 8 RET 03bb
-;(insert-char "GREEK SMALL LETTER LAMDA") ;CHARACTER &optional COUNT INHERIT)
